@@ -89,7 +89,7 @@ export function Projects() {
             Управляйте своими проектами и задачами
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
           <Plus className="h-4 w-4 mr-2" />
           Новый проект
         </Button>
@@ -104,7 +104,7 @@ export function Projects() {
             <p className="text-gray-500 text-center mb-6">
               Создайте свой первый проект, чтобы начать управлять задачами
             </p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
               <Plus className="h-4 w-4 mr-2" />
               Создать проект
             </Button>
@@ -113,17 +113,17 @@ export function Projects() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {projects.map((project) => (
-            <Card key={project.id} className="hover:shadow-lg transition-shadow">
+            <Card key={project.id} className="group hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm rounded-xl">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center min-w-0 flex-1">
                     <div 
-                      className="w-4 h-4 rounded-full mr-3 flex-shrink-0" 
+                      className="w-4 h-4 rounded-full mr-3 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" 
                       style={{ backgroundColor: project.color }}
                     />
-                    <CardTitle className="text-lg truncate">{project.name}</CardTitle>
+                    <CardTitle className="text-lg truncate group-hover:text-blue-600 transition-colors duration-300">{project.name}</CardTitle>
                   </div>
-                  <Button variant="ghost" size="sm" className="flex-shrink-0">
+                  <Button variant="ghost" size="sm" className="flex-shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </div>
@@ -135,7 +135,7 @@ export function Projects() {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2 mb-4">
-                  <Button size="sm" asChild className="flex-1">
+                  <Button size="sm" asChild className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
                     <Link to={`/kanban/${project.id}`}>
                       <FolderKanban className="h-4 w-4 mr-2" />
                       Открыть
@@ -143,14 +143,14 @@ export function Projects() {
                   </Button>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
                     <Edit className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Изменить</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1 text-red-600 hover:text-red-700"
+                    className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
                     onClick={() => handleDeleteProject(project.id)}
                   >
                     <Trash2 className="h-4 w-4 sm:mr-2" />

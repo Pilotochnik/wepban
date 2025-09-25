@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { TaskCard } from '@/components/TaskCard'
 import { CreateTaskDialog } from '@/components/CreateTaskDialog'
@@ -132,7 +131,7 @@ export function Kanban() {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Проект не найден</h2>
-        <Button asChild>
+        <Button asChild className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
           <Link to="/projects">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Вернуться к проектам
@@ -148,7 +147,7 @@ export function Kanban() {
       <div className="flex justify-between items-center">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
               <Link to="/projects">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -163,7 +162,7 @@ export function Kanban() {
             <p className="text-gray-600">{project.description}</p>
           )}
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
           <Plus className="h-4 w-4 mr-2" />
           Новая задача
         </Button>

@@ -57,10 +57,10 @@ export function Layout({ children }: LayoutProps) {
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button
               type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-all duration-200 hover:scale-110 hover:bg-white/20"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6 text-white" />
+              <X className="h-6 w-6 text-white transition-transform duration-200" />
             </button>
           </div>
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
@@ -75,14 +75,14 @@ export function Layout({ children }: LayoutProps) {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "group flex items-center px-2 py-2 text-base font-medium rounded-md",
+                      "group flex items-center px-2 py-2 text-base font-medium rounded-md transition-all duration-200 hover:scale-105 hover:shadow-md",
                       isActive
-                        ? "bg-primary text-white"
+                        ? "bg-primary text-white shadow-lg"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <item.icon className="mr-4 h-6 w-6" />
+                    <item.icon className="mr-4 h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
                     {item.name}
                   </Link>
                 )
@@ -122,13 +122,13 @@ export function Layout({ children }: LayoutProps) {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                        "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-all duration-200 hover:scale-105 hover:shadow-md",
                         isActive
-                          ? "bg-primary text-white"
+                          ? "bg-primary text-white shadow-lg"
                           : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                       )}
                     >
-                      <item.icon className="mr-3 h-6 w-6" />
+                      <item.icon className="mr-3 h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
                       {item.name}
                     </Link>
                   )
@@ -158,10 +158,10 @@ export function Layout({ children }: LayoutProps) {
         <div className="sticky top-0 z-10 lg:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-50">
           <button
             type="button"
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary transition-all duration-200 hover:scale-110 hover:bg-gray-100 hover:shadow-md"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6 transition-transform duration-200" />
           </button>
         </div>
         <main className="flex-1">

@@ -9,7 +9,10 @@ import {
   CheckSquare, 
   Clock, 
   Plus,
-  TrendingUp
+  TrendingUp,
+  Target,
+  Activity,
+  CheckCircle
 } from 'lucide-react'
 
 export function Dashboard() {
@@ -69,7 +72,7 @@ export function Dashboard() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button asChild>
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
             <Link to="/projects">
               <Plus className="h-4 w-4 mr-2" />
               Новый проект
@@ -78,20 +81,20 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Проекты</CardTitle>
-            <FolderKanban className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProjects}</div>
-            <p className="text-xs text-muted-foreground">
-              Всего проектов
-            </p>
-          </CardContent>
-        </Card>
+             {/* Stats */}
+             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+               <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/50 hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105">
+                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                   <CardTitle className="text-sm font-medium text-blue-700">Проекты</CardTitle>
+                   <FolderKanban className="h-4 w-4 text-blue-500" />
+                 </CardHeader>
+                 <CardContent>
+                   <div className="text-2xl font-bold text-blue-900">{stats.totalProjects}</div>
+                   <p className="text-xs text-blue-600">
+                     Всего проектов
+                   </p>
+                 </CardContent>
+               </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -147,7 +150,7 @@ export function Dashboard() {
               <div className="text-center py-6">
                 <FolderKanban className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 mb-4">У вас пока нет проектов</p>
-                <Button asChild>
+                <Button asChild className="bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
                   <Link to="/projects">Создать первый проект</Link>
                 </Button>
               </div>
@@ -167,7 +170,7 @@ export function Dashboard() {
                         )}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="ml-2 flex-shrink-0" asChild>
+                    <Button variant="outline" size="sm" className="ml-2 flex-shrink-0 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5" asChild>
                       <Link to={`/kanban/${project.id}`}>
                         Открыть
                       </Link>
@@ -175,7 +178,7 @@ export function Dashboard() {
                   </div>
                 ))}
                 {projects.length > 5 && (
-                  <Button variant="ghost" className="w-full" asChild>
+                  <Button variant="ghost" className="w-full hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5" asChild>
                     <Link to="/projects">Показать все проекты</Link>
                   </Button>
                 )}

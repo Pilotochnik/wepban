@@ -182,44 +182,44 @@ export function AdminPanel() {
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Админ панель</h1>
-        <Button onClick={loadData} disabled={loading} className="w-full sm:w-auto">
+        <Button onClick={loadData} disabled={loading} className="w-full sm:w-auto bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
           {loading ? 'Загрузка...' : 'Обновить'}
         </Button>
       </div>
 
       {/* Статистика */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Card>
+        <Card className="group hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm rounded-xl">
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
               <div className="ml-2 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Всего пользователей</p>
-                <p className="text-xl sm:text-2xl font-bold">{users.length}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate group-hover:text-blue-600 transition-colors duration-300">Всего пользователей</p>
+                <p className="text-xl sm:text-2xl font-bold group-hover:text-blue-700 transition-colors duration-300">{users.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg hover:shadow-yellow-500/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm rounded-xl">
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 flex-shrink-0" />
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
               <div className="ml-2 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Ожидают одобрения</p>
-                <p className="text-xl sm:text-2xl font-bold">{pendingApprovals.length}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate group-hover:text-yellow-600 transition-colors duration-300">Ожидают одобрения</p>
+                <p className="text-xl sm:text-2xl font-bold group-hover:text-yellow-700 transition-colors duration-300">{pendingApprovals.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm rounded-xl">
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <UserCheck className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
+              <UserCheck className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
               <div className="ml-2 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Активные прорабы</p>
-                <p className="text-xl sm:text-2xl font-bold">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate group-hover:text-green-600 transition-colors duration-300">Активные прорабы</p>
+                <p className="text-xl sm:text-2xl font-bold group-hover:text-green-700 transition-colors duration-300">
                   {users.filter(u => u.role === 'foreman' && u.is_active).length}
                 </p>
               </div>
@@ -227,13 +227,13 @@ export function AdminPanel() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] border-0 bg-gradient-to-br from-white to-slate-50/50 backdrop-blur-sm rounded-xl">
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 flex-shrink-0" />
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
               <div className="ml-2 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Заблокированные</p>
-                <p className="text-xl sm:text-2xl font-bold">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate group-hover:text-red-600 transition-colors duration-300">Заблокированные</p>
+                <p className="text-xl sm:text-2xl font-bold group-hover:text-red-700 transition-colors duration-300">
                   {users.filter(u => !u.is_active).length}
                 </p>
               </div>
@@ -252,7 +252,7 @@ export function AdminPanel() {
             </CardTitle>
             <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
               <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto bg-green-50 hover:bg-green-100 text-green-700 border-green-200 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Добавить пользователя
                 </Button>
@@ -333,6 +333,7 @@ export function AdminPanel() {
                         size="sm"
                         variant="outline"
                         onClick={() => setSelectedApproval(approval)}
+                        className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Просмотр
@@ -445,7 +446,7 @@ function AddUserForm({ onSuccess, projects }: { onSuccess: () => void, projects:
           </SelectContent>
         </Select>
       </div>
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
         Добавить пользователя
       </Button>
     </form>
@@ -505,17 +506,18 @@ function ApprovalReviewModal({
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} className="hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
               Отмена
             </Button>
             <Button 
               variant="destructive" 
               onClick={() => onReject(comment)}
+              className="hover:bg-red-600 hover:border-red-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
             >
               <XCircle className="h-4 w-4 mr-2" />
               Отклонить
             </Button>
-            <Button onClick={() => onApprove(comment)}>
+            <Button onClick={() => onApprove(comment)} className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5">
               <CheckCircle className="h-4 w-4 mr-2" />
               Одобрить
             </Button>
