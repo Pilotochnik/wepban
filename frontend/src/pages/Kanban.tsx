@@ -20,7 +20,6 @@ const columns = [
 export function Kanban() {
   const { projectId } = useParams<{ projectId: string }>()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [activeTask, setActiveTask] = useState<Task | null>(null)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -74,35 +73,6 @@ export function Kanban() {
     },
   })
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const task = tasks.find(t => t.id === event.active.id)
-    setActiveTask(task || null)
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    
-    if (!over || active.id === over.id) {
-      setActiveTask(null)
-      return
-    }
-
-    const taskId = active.id as number
-    const newStatus = over.id as string
-
-    // Проверяем, что это валидный статус
-    if (!columns.some(col => col.id === newStatus)) {
-      setActiveTask(null)
-      return
-    }
-
-    updateTaskMutation.mutate({
-      id: taskId,
-      data: { status: newStatus as any }
-    })
-    
-    setActiveTask(null)
-  }
 
   const handleCreateTask = (data: { title: string; description?: string; priority: string }) => {
     createTaskMutation.mutate({
@@ -169,29 +139,23 @@ export function Kanban() {
       </div>
 
       {/* Kanban Board */}
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              id={column.id}
-              title={column.title}
-              color={column.color}
-              tasks={tasksByStatus[column.id] || []}
-              onStatusChange={(taskId, newStatus) => {
-                updateTaskMutation.mutate({
-                  id: taskId,
-                  data: { status: newStatus as any }
-                })
-              }}
-            />
-          ))}
-        </div>
-
-        <DragOverlay>
-          {activeTask ? <TaskCard task={activeTask} isDragging /> : null}
-        </DragOverlay>
-      </DndContext>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {columns.map((column) => (
+          <KanbanColumn
+            key={column.id}
+            id={column.id}
+            title={column.title}
+            color={column.color}
+            tasks={tasksByStatus[column.id] || []}
+            onStatusChange={(taskId, newStatus) => {
+              updateTaskMutation.mutate({
+                id: taskId,
+                data: { status: newStatus as any }
+              })
+            }}
+          />
+        ))}
+      </div>
 
       {/* Create Task Dialog */}
       <CreateTaskDialog

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { apiService } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { ConstructionLoader } from '@/components/ui/construction-loader'
 import { 
   FolderKanban, 
   CheckSquare, 
@@ -83,7 +84,10 @@ export function Dashboard() {
 
              {/* Stats */}
              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-               <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/50 hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105">
+               <Card 
+                 className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/50 hover:shadow-blue-500/10 transition-all duration-300 hover:scale-105 cursor-pointer"
+                 onClick={() => {/* Переход к проектам */}}
+               >
                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                    <CardTitle className="text-sm font-medium text-blue-700">Проекты</CardTitle>
                    <FolderKanban className="h-4 w-4 text-blue-500" />

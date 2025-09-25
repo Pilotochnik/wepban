@@ -4,9 +4,10 @@ import { Task } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import { Eye, ChevronRight, ChevronLeft, Clock, User, Flag } from 'lucide-react'
+import { Eye, ChevronRight, ChevronLeft, Clock, User, Flag, Camera } from 'lucide-react'
 import { useState } from 'react'
 import { TaskDetailModal } from './TaskDetailModal'
+import { MediaViewer, TaskMediaPreview } from './MediaViewer'
 
 interface TaskCardProps {
   task: Task
@@ -35,7 +36,22 @@ const statusColors = {
 
 export function TaskCard({ task, onStatusChange }: TaskCardProps) {
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showMediaViewer, setShowMediaViewer] = useState(false)
+  const [mediaViewerIndex, setMediaViewerIndex] = useState(0)
   const [isChangingStatus, setIsChangingStatus] = useState(false)
+
+  // Моковые медиа файлы для демонстрации
+  const mockMedia = [
+    {
+      id: 1,
+      url: '/api/placeholder/400/300',
+      type: 'image' as const,
+      title: 'Фото задачи',
+      description: 'Текущее состояние работ',
+      uploaded_at: new Date().toISOString(),
+      uploaded_by: 'Прораб'
+    }
+  ]
 
   const handleStatusChange = async (newStatus: string) => {
     setIsChangingStatus(true)
@@ -100,6 +116,23 @@ export function TaskCard({ task, onStatusChange }: TaskCardProps) {
               )}
             </div>
           </div>
+
+          {/* Медиа файлы */}
+          {mockMedia.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Camera className="h-3 w-3 text-gray-400" />
+                <span className="text-xs text-gray-500">Медиа файлы</span>
+              </div>
+              <TaskMediaPreview 
+                media={mockMedia} 
+                onView={(index) => {
+                  setMediaViewerIndex(index)
+                  setShowMediaViewer(true)
+                }}
+              />
+            </div>
+          )}
 
           {/* Кнопки действий */}
           <div className="space-y-3">
@@ -190,6 +223,14 @@ export function TaskCard({ task, onStatusChange }: TaskCardProps) {
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         onStatusChange={onStatusChange}
+      />
+
+      {/* Медиа просмотрщик */}
+      <MediaViewer
+        media={mockMedia}
+        isOpen={showMediaViewer}
+        onClose={() => setShowMediaViewer(false)}
+        initialIndex={mediaViewerIndex}
       />
     </Card>
   )

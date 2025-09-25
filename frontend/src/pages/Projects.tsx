@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { apiService, Project } from '@/lib/api'
 import { 
@@ -9,10 +10,12 @@ import {
   FolderKanban, 
   Edit, 
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Wrench
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { CreateProjectDialog } from '@/components/CreateProjectDialog'
+import { EquipmentTab } from '@/components/EquipmentTab'
 
 export function Projects() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -95,6 +98,21 @@ export function Projects() {
         </Button>
       </div>
 
+      {/* Tabs */}
+      <Tabs defaultValue="projects" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="projects" className="flex items-center gap-2">
+            <FolderKanban className="h-4 w-4" />
+            Проекты
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Wrench className="h-4 w-4" />
+            Техника
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="projects" className="space-y-6">
+
       {/* Projects Grid */}
       {projects.length === 0 ? (
         <Card>
@@ -162,6 +180,13 @@ export function Projects() {
           ))}
         </div>
       )}
+
+        </TabsContent>
+
+        <TabsContent value="equipment" className="space-y-6">
+          <EquipmentTab projectId={projects[0]?.id || 0} />
+        </TabsContent>
+      </Tabs>
 
       {/* Create Project Dialog */}
       <CreateProjectDialog
