@@ -79,7 +79,7 @@ export function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Проекты</CardTitle>
@@ -155,19 +155,19 @@ export function Dashboard() {
               <div className="space-y-3">
                 {projects.slice(0, 5).map((project) => (
                   <div key={project.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center">
+                    <div className="flex items-center min-w-0 flex-1">
                       <div 
-                        className="w-3 h-3 rounded-full mr-3" 
+                        className="w-3 h-3 rounded-full mr-3 flex-shrink-0" 
                         style={{ backgroundColor: project.color }}
                       />
-                      <div>
-                        <p className="font-medium">{project.name}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{project.name}</p>
                         {project.description && (
-                          <p className="text-sm text-gray-500">{project.description}</p>
+                          <p className="text-sm text-gray-500 truncate">{project.description}</p>
                         )}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" className="ml-2 flex-shrink-0" asChild>
                       <Link to={`/kanban/${project.id}`}>
                         Открыть
                       </Link>

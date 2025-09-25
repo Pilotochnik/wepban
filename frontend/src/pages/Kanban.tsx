@@ -171,7 +171,7 @@ export function Kanban() {
 
       {/* Kanban Board */}
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -179,6 +179,12 @@ export function Kanban() {
               title={column.title}
               color={column.color}
               tasks={tasksByStatus[column.id] || []}
+              onStatusChange={(taskId, newStatus) => {
+                updateTaskMutation.mutate({
+                  id: taskId,
+                  data: { status: newStatus as any }
+                })
+              }}
             />
           ))}
         </div>

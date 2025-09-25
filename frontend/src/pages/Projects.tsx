@@ -111,19 +111,19 @@ export function Projects() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {projects.map((project) => (
             <Card key={project.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
+                  <div className="flex items-center min-w-0 flex-1">
                     <div 
-                      className="w-4 h-4 rounded-full mr-3" 
+                      className="w-4 h-4 rounded-full mr-3 flex-shrink-0" 
                       style={{ backgroundColor: project.color }}
                     />
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
+                    <CardTitle className="text-lg truncate">{project.name}</CardTitle>
                   </div>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="flex-shrink-0">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </div>
@@ -144,8 +144,8 @@ export function Projects() {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="flex-1">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Изменить
+                    <Edit className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Изменить</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -153,8 +153,8 @@ export function Projects() {
                     className="flex-1 text-red-600 hover:text-red-700"
                     onClick={() => handleDeleteProject(project.id)}
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Удалить
+                    <Trash2 className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Удалить</span>
                   </Button>
                 </div>
               </CardContent>

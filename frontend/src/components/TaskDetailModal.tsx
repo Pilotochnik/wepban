@@ -140,7 +140,7 @@ export function TaskDetailModal({ taskId, isOpen, onClose, onStatusChange }: Tas
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto sm:max-w-lg md:max-w-2xl">
         <DialogHeader className="pb-4">
           <DialogTitle className="text-lg font-semibold leading-tight">
             {task.title}

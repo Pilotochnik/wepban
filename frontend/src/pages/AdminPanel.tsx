@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { apiService } from '@/lib/api'
+import { apiService, Project } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
   Users, 
@@ -51,6 +51,7 @@ export function AdminPanel() {
   const { user } = useAuth()
   const { toast } = useToast()
   const [users, setUsers] = useState<User[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [pendingApprovals, setPendingApprovals] = useState<ApprovalRequest[]>([])
   const [showAddUserDialog, setShowAddUserDialog] = useState(false)
   const [selectedApproval, setSelectedApproval] = useState<ApprovalRequest | null>(null)
@@ -84,6 +85,7 @@ export function AdminPanel() {
     try {
       await Promise.all([
         loadUsers(),
+        loadProjects(),
         loadPendingApprovals()
       ])
     } catch (error) {
@@ -103,6 +105,15 @@ export function AdminPanel() {
       setUsers(response.data)
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error)
+    }
+  }
+
+  const loadProjects = async () => {
+    try {
+      const response = await apiService.getProjects()
+      setProjects(response.data)
+    } catch (error) {
+      console.error('Ошибка загрузки проектов:', error)
     }
   }
 
@@ -168,23 +179,23 @@ export function AdminPanel() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Админ панель</h1>
-        <Button onClick={loadData} disabled={loading}>
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Админ панель</h1>
+        <Button onClick={loadData} disabled={loading} className="w-full sm:w-auto">
           {loading ? 'Загрузка...' : 'Обновить'}
         </Button>
       </div>
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <Users className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Всего пользователей</p>
-                <p className="text-2xl font-bold">{users.length}</p>
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <div className="ml-2 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Всего пользователей</p>
+                <p className="text-xl sm:text-2xl font-bold">{users.length}</p>
               </div>
             </div>
           </CardContent>
@@ -193,10 +204,10 @@ export function AdminPanel() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <Clock className="h-8 w-8 text-yellow-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Ожидают одобрения</p>
-                <p className="text-2xl font-bold">{pendingApprovals.length}</p>
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 flex-shrink-0" />
+              <div className="ml-2 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Ожидают одобрения</p>
+                <p className="text-xl sm:text-2xl font-bold">{pendingApprovals.length}</p>
               </div>
             </div>
           </CardContent>
@@ -205,10 +216,10 @@ export function AdminPanel() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <UserCheck className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Активные прорабы</p>
-                <p className="text-2xl font-bold">
+              <UserCheck className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
+              <div className="ml-2 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Активные прорабы</p>
+                <p className="text-xl sm:text-2xl font-bold">
                   {users.filter(u => u.role === 'foreman' && u.is_active).length}
                 </p>
               </div>
@@ -219,10 +230,10 @@ export function AdminPanel() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Заблокированные</p>
-                <p className="text-2xl font-bold">
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 flex-shrink-0" />
+              <div className="ml-2 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Заблокированные</p>
+                <p className="text-xl sm:text-2xl font-bold">
                   {users.filter(u => !u.is_active).length}
                 </p>
               </div>
@@ -234,14 +245,14 @@ export function AdminPanel() {
       {/* Пользователи */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
               Пользователи системы
             </CardTitle>
             <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Добавить пользователя
                 </Button>
@@ -250,10 +261,13 @@ export function AdminPanel() {
                 <DialogHeader>
                   <DialogTitle>Добавить нового пользователя</DialogTitle>
                 </DialogHeader>
-                <AddUserForm onSuccess={() => {
-                  setShowAddUserDialog(false)
-                  loadUsers()
-                }} />
+                <AddUserForm 
+                  onSuccess={() => {
+                    setShowAddUserDialog(false)
+                    loadUsers()
+                  }}
+                  projects={projects}
+                />
               </DialogContent>
             </Dialog>
           </div>
@@ -261,17 +275,17 @@ export function AdminPanel() {
         <CardContent>
           <div className="space-y-4">
             {users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <p className="font-medium">
+              <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+                <div className="flex items-center space-x-4 min-w-0 flex-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium truncate">
                       {user.first_name} {user.last_name}
                     </p>
-                    <p className="text-sm text-gray-600">@{user.username}</p>
+                    <p className="text-sm text-gray-600 truncate">@{user.username}</p>
                     <p className="text-xs text-gray-500">ID: {user.telegram_id}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge className={getRoleColor(user.role)}>
                     {getRoleLabel(user.role)}
                   </Badge>
@@ -346,13 +360,13 @@ export function AdminPanel() {
 }
 
 // Компонент для добавления пользователя
-function AddUserForm({ onSuccess }: { onSuccess: () => void }) {
+function AddUserForm({ onSuccess, projects }: { onSuccess: () => void, projects: Project[] }) {
   const { toast } = useToast()
   const [formData, setFormData] = useState({
     telegram_id: '',
     first_name: '',
     last_name: '',
-    username: '',
+    project_id: '',
     role: 'worker'
   })
 
@@ -404,12 +418,19 @@ function AddUserForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
       <div>
-        <Label htmlFor="username">Username</Label>
-        <Input
-          id="username"
-          value={formData.username}
-          onChange={(e) => setFormData({...formData, username: e.target.value})}
-        />
+        <Label htmlFor="project_id">Проект</Label>
+        <Select value={formData.project_id} onValueChange={(value) => setFormData({...formData, project_id: value})}>
+          <SelectTrigger>
+            <SelectValue placeholder="Выберите проект" />
+          </SelectTrigger>
+          <SelectContent>
+            {projects.map((project) => (
+              <SelectItem key={project.id} value={project.id.toString()}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <Label htmlFor="role">Роль</Label>

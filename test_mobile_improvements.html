@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест улучшений мобильного интерфейса</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .warning { color: orange; }
+        .test-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .test-item.passed {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .test-item.failed {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .test-item.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .mobile-preview {
+            width: 375px;
+            height: 667px;
+            border: 2px solid #333;
+            border-radius: 20px;
+            margin: 20px auto;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .mobile-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📱 Тест улучшений мобильного интерфейса</h1>
+    
+    <div class="container">
+        <h2>✅ Выполненные исправления</h2>
+        
+        <div class="test-item passed">
+            <h3>1. Оптимизация мобильного интерфейса</h3>
+            <p><strong>Статус:</strong> ✅ Выполнено</p>
+            <p><strong>Изменения:</strong></p>
+            <ul>
+                <li>TaskDetailModal: добавлены адаптивные размеры <code>sm:max-w-lg md:max-w-2xl</code></li>
+                <li>Kanban: изменена сетка на <code>grid-cols-1 sm:grid-cols-2 lg:grid-cols-4</code></li>
+                <li>KanbanColumn: уменьшена минимальная высота на мобильных <code>min-h-[300px] sm:min-h-[400px]</code></li>
+            </ul>
+        </div>
+
+        <div class="test-item passed">
+            <h3>2. Исправление перетаскивания задач</h3>
+            <p><strong>Статус:</strong> ✅ Выполнено</p>
+            <p><strong>Изменения:</strong></p>
+            <ul>
+                <li>Добавлена иконка <code>GripVertical</code> для области перетаскивания</li>
+                <li>Перетаскивание работает только в области заголовка задачи</li>
+                <li>Кнопка "Подробнее" не мешает перетаскиванию</li>
+                <li>Добавлен <code>e.stopPropagation()</code> для кнопки</li>
+            </ul>
+        </div>
+
+        <div class="test-item passed">
+            <h3>3. Исправление кнопки "Подробнее"</h3>
+            <p><strong>Статус:</strong> ✅ Выполнено</p>
+            <p><strong>Изменения:</strong></p>
+            <ul>
+                <li>Кнопка теперь не конфликтует с перетаскиванием</li>
+                <li>Добавлен обработчик <code>onClick</code> с <code>stopPropagation</code></li>
+                <li>Модальное окно TaskDetailModal адаптивное</li>
+            </ul>
+        </div>
+
+        <div class="test-item passed">
+            <h3>4. Улучшение создания пользователей в админ-панели</h3>
+            <p><strong>Статус:</strong> ✅ Выполнено</p>
+            <p><strong>Изменения:</strong></p>
+            <ul>
+                <li>Заменено поле "Username" на "Выбор проекта"</li>
+                <li>Добавлен Select с списком доступных проектов</li>
+                <li>Добавлена функция <code>loadProjects()</code></li>
+                <li>Обновлена форма <code>AddUserForm</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧪 Инструкции для тестирования</h2>
+        
+        <div class="test-item info">
+            <h3>Тест 1: Мобильный интерфейс</h3>
+            <ol>
+                <li>Откройте веб-приложение на мобильном устройстве</li>
+                <li>Перейдите в любой проект</li>
+                <li>Проверьте, что колонки Kanban адаптируются под экран</li>
+                <li>На мобильном должно быть 1-2 колонки, на планшете 2-4</li>
+            </ol>
+        </div>
+
+        <div class="test-item info">
+            <h3>Тест 2: Перетаскивание задач</h3>
+            <ol>
+                <li>Найдите задачу в любой колонке</li>
+                <li>Попробуйте перетащить за заголовок задачи (где есть иконка grip)</li>
+                <li>Перетащите в другую колонку</li>
+                <li>Статус должен измениться автоматически</li>
+                <li>Кнопка "Подробнее" не должна мешать перетаскиванию</li>
+            </ol>
+        </div>
+
+        <div class="test-item info">
+            <h3>Тест 3: Детали задачи</h3>
+            <ol>
+                <li>Нажмите кнопку "Подробнее" на любой задаче</li>
+                <li>Должно открыться модальное окно с деталями</li>
+                <li>Окно должно быть адаптивным (не на весь экран на мобильном)</li>
+                <li>Проверьте кнопки изменения статуса в модальном окне</li>
+            </ol>
+        </div>
+
+        <div class="test-item info">
+            <h3>Тест 4: Админ-панель</h3>
+            <ol>
+                <li>Войдите как создатель проекта</li>
+                <li>Перейдите в админ-панель</li>
+                <li>Нажмите "Добавить пользователя"</li>
+                <li>В форме должно быть поле "Проект" вместо "Username"</li>
+                <li>Выберите проект из выпадающего списка</li>
+                <li>Заполните остальные поля и создайте пользователя</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Результаты сборки</h2>
+        <div class="test-item passed">
+            <h3>✅ Сборка успешна</h3>
+            <pre>
+vite v5.4.20 building for production...
+✓ 2402 modules transformed.
+dist/index.html                   0.56 kB │ gzip:   0.35 kB
+dist/assets/index-DLzUA574.css   33.63 kB │ gzip:   6.50 kB
+dist/assets/index-D-jg6bxY.js   506.90 kB │ gzip: 162.27 kB
+✓ built in 7.76s
+            </pre>
+            <p><strong>Линтер:</strong> ✅ Ошибок нет</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🚀 Следующие шаги</h2>
+        <ol>
+            <li><strong>Загрузите на сервер:</strong> <code>scp -r frontend/dist/* root@194.87.76.75:/var/www/project-manager/frontend/dist/</code></li>
+            <li><strong>Перезапустите сервисы:</strong> <code>ssh root@194.87.76.75 "cd /var/www/project-manager && ./start_all.sh"</code></li>
+            <li><strong>Протестируйте на мобильном устройстве</strong></li>
+            <li><strong>Проверьте все функции:</strong> перетаскивание, детали задач, создание пользователей</li>
+        </ol>
+    </div>
+
+    <script>
+        // Автоматическая проверка доступности сайта
+        window.onload = function() {
+            const testUrl = 'https://projectmanager.chickenkiller.com';
+            
+            fetch(testUrl)
+                .then(response => {
+                    if (response.ok) {
+                        document.body.insertAdjacentHTML('beforeend', `
+                            <div class="container">
+                                <div class="test-item passed">
+                                    <h3>🌐 Сервер доступен</h3>
+                                    <p>Веб-приложение доступно по адресу: <a href="${testUrl}" target="_blank">${testUrl}</a></p>
+                                </div>
+                            </div>
+                        `);
+                    }
+                })
+                .catch(error => {
+                    document.body.insertAdjacentHTML('beforeend', `
+                        <div class="container">
+                            <div class="test-item failed">
+                                <h3>❌ Сервер недоступен</h3>
+                                <p>Не удалось подключиться к серверу: ${testUrl}</p>
+                            </div>
+                        </div>
+                    `);
+                });
+        };
+    </script>
+</body>
+</html>

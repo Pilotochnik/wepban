@@ -9,9 +9,10 @@ interface KanbanColumnProps {
   title: string
   color: string
   tasks: Task[]
+  onStatusChange?: (taskId: number, newStatus: string) => void
 }
 
-export function KanbanColumn({ id, title, color, tasks }: KanbanColumnProps) {
+export function KanbanColumn({ id, title, color, tasks, onStatusChange }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   })
@@ -29,14 +30,14 @@ export function KanbanColumn({ id, title, color, tasks }: KanbanColumnProps) {
       <div
         ref={setNodeRef}
         className={cn(
-          "min-h-[400px] p-4 rounded-lg border-2 border-dashed transition-colors",
+          "min-h-[300px] sm:min-h-[400px] p-3 sm:p-4 rounded-lg border-2 border-dashed transition-colors",
           isOver ? "border-primary bg-primary/5" : "border-gray-200 bg-gray-50"
         )}
       >
         <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onStatusChange={onStatusChange} />
             ))}
             {tasks.length === 0 && (
               <div className="text-center text-gray-500 py-8">

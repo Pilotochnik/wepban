@@ -6,7 +6,7 @@ import { Task } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import { Eye } from 'lucide-react'
+import { Eye, GripVertical, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { TaskDetailModal } from './TaskDetailModal'
 
@@ -53,24 +53,32 @@ export function TaskCard({ task, isDragging, onStatusChange }: TaskCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       className={cn(
-        "cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow",
+        "hover:shadow-md transition-shadow",
         (isDragging || isSortableDragging) && "opacity-50 rotate-3 scale-105"
       )}
     >
       <CardContent className="p-4">
         <div className="space-y-3">
-          <div>
-            <h4 className="font-medium text-sm text-gray-900 line-clamp-2">
-              {task.title}
-            </h4>
-            {task.description && (
-              <p className="text-xs text-gray-600 mt-1 line-clamp-3">
-                {task.description}
-              </p>
-            )}
+          {/* Область для перетаскивания */}
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="flex items-start justify-between cursor-grab active:cursor-grabbing"
+          >
+            <div className="flex-1">
+              <h4 className="font-medium text-sm text-gray-900 line-clamp-2">
+                {task.title}
+              </h4>
+              {task.description && (
+                <p className="text-xs text-gray-600 mt-1 line-clamp-3">
+                  {task.description}
+                </p>
+              )}
+            </div>
+            <div className="ml-2 flex-shrink-0">
+              <GripVertical className="h-4 w-4 text-gray-400" />
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
@@ -106,13 +114,77 @@ export function TaskCard({ task, isDragging, onStatusChange }: TaskCardProps) {
             )}
           </div>
 
-          {/* Кнопка для детального просмотра */}
-          <div className="mt-3 pt-2 border-t border-gray-100">
+          {/* Кнопки действий */}
+          <div className="mt-3 pt-2 border-t border-gray-100 space-y-2">
+            {/* Кнопки смены статуса */}
+            <div className="flex gap-1">
+              {task.status === 'todo' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onStatusChange?.(task.id, 'in_progress')
+                  }}
+                >
+                  <ChevronRight className="h-3 w-3 mr-1" />
+                  В работу
+                </Button>
+              )}
+              {task.status === 'in_progress' && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onStatusChange?.(task.id, 'todo')
+                    }}
+                  >
+                    <ChevronLeft className="h-3 w-3 mr-1" />
+                    Назад
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onStatusChange?.(task.id, 'done')
+                    }}
+                  >
+                    <ChevronRight className="h-3 w-3 mr-1" />
+                    Готово
+                  </Button>
+                </>
+              )}
+              {task.status === 'done' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onStatusChange?.(task.id, 'in_progress')
+                  }}
+                >
+                  <ChevronLeft className="h-3 w-3 mr-1" />
+                  В работу
+                </Button>
+              )}
+            </div>
+            
+            {/* Кнопка подробнее */}
             <Button 
               variant="outline" 
               size="sm" 
               className="w-full"
-              onClick={() => setShowDetailModal(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowDetailModal(true)
+              }}
             >
               <Eye className="h-4 w-4 mr-2" />
               Подробнее
