@@ -15,7 +15,7 @@ interface User {
   username?: string
   first_name?: string
   last_name?: string
-  role: 'admin' | 'user' | 'viewer'
+  role: 'creator' | 'foreman' | 'worker' | 'viewer'
   is_active: boolean
 }
 
@@ -49,15 +49,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = tg.initDataUnsafe.user
         if (userData) {
           await login(userData.id)
+        } else {
+          // Пользователь не авторизован в Telegram WebApp
+          console.log('User not authorized in Telegram WebApp')
+          setUser(null)
         }
       } else {
-        // Для разработки - автоматически авторизуемся как тестовый пользователь
-        console.log('Running in development mode, auto-login as test user')
-        await login(434532312) // Используем ваш Telegram ID
+        // Приложение запущено не в Telegram WebApp - доступ запрещен
+        console.log('Application not running in Telegram WebApp - access denied')
+        setUser(null)
       }
       
     } catch (error) {
       console.error('Ошибка инициализации авторизации:', error)
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -66,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (telegramId: number) => {
     try {
       console.log('Attempting login with telegram_id:', telegramId)
-      const response = await api.post('/api/v1/users/auth', { telegram_id: telegramId })
+      const response = await api.post('/v1/users/auth', { telegram_id: telegramId })
       console.log('Login response:', response.data)
       const { access_token, user: userData } = response.data
       

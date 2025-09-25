@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест проверки роли</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .test { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre { background: #e9ecef; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Тест проверки роли пользователя</h1>
+    
+    <div class="test">
+        <h3>Тест 1: Проверка API авторизации</h3>
+        <button onclick="testAuth()">Тест авторизации</button>
+        <div id="auth-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Тест 2: Проверка роли в данных пользователя</h3>
+        <button onclick="checkUserRole()">Проверить роль</button>
+        <div id="role-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Тест 3: Симуляция фронтенда</h3>
+        <button onclick="simulateFrontend()">Симулировать фронтенд</button>
+        <div id="frontend-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://projectmanager.chickenkiller.com/api';
+        let authData = null;
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        async function testAuth() {
+            try {
+                log('auth-result', 'Отправляем запрос авторизации...', 'warning');
+                
+                const response = await fetch(`${API_BASE}/v1/users/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegram_id: 434532312 })
+                });
+
+                if (response.ok) {
+                    authData = await response.json();
+                    log('auth-result', `
+                        <strong>✅ Авторизация успешна!</strong><br>
+                        <pre>${JSON.stringify(authData, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log('auth-result', `❌ Ошибка: ${response.status}<br><pre>${errorText}</pre>`, 'error');
+                }
+            } catch (error) {
+                log('auth-result', `❌ Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        function checkUserRole() {
+            if (!authData) {
+                log('role-result', '⚠️ Сначала выполните авторизацию', 'warning');
+                return;
+            }
+
+            const user = authData.user;
+            const role = user.role;
+            
+            let result = `<strong>Анализ роли пользователя:</strong><br>`;
+            result += `<pre>${JSON.stringify(user, null, 2)}</pre><br>`;
+            
+            result += `<strong>Роль: "${role}"</strong><br>`;
+            
+            if (role === 'creator') {
+                result += `<strong>✅ Роль "creator" - админ-панель ДОЛЖНА быть доступна!</strong><br>`;
+                result += `• user?.role === 'creator' → ${user?.role === 'creator'}<br>`;
+                result += `• user.role === 'creator' → ${user.role === 'creator'}<br>`;
+            } else {
+                result += `<strong>⚠️ Роль "${role}" - админ-панель НЕ будет доступна</strong><br>`;
+                result += `• user?.role === 'creator' → ${user?.role === 'creator'}<br>`;
+                result += `• user.role === 'creator' → ${user.role === 'creator'}<br>`;
+            }
+            
+            log('role-result', result, role === 'creator' ? 'success' : 'warning');
+        }
+
+        function simulateFrontend() {
+            if (!authData) {
+                log('frontend-result', '⚠️ Сначала выполните авторизацию', 'warning');
+                return;
+            }
+
+            const user = authData.user;
+            
+            let result = `<strong>Симуляция логики фронтенда:</strong><br><br>`;
+            
+            // Симуляция App.tsx
+            result += `<strong>1. App.tsx проверка:</strong><br>`;
+            result += `if (!user) { return <Unauthorized /> }<br>`;
+            result += `user = ${JSON.stringify(user)}<br>`;
+            result += `!user = ${!user}<br>`;
+            result += `Результат: ${!user ? '❌ Показать Unauthorized' : '✅ Показать приложение'}<br><br>`;
+            
+            // Симуляция App.tsx маршрута
+            result += `<strong>2. App.tsx маршрут админ-панели:</strong><br>`;
+            result += `{user.role === 'creator' && (<Route path="/admin" element={<AdminPanel />} />)}<br>`;
+            result += `user.role = "${user.role}"<br>`;
+            result += `user.role === 'creator' = ${user.role === 'creator'}<br>`;
+            result += `Результат: ${user.role === 'creator' ? '✅ Маршрут /admin доступен' : '❌ Маршрут /admin НЕ доступен'}<br><br>`;
+            
+            // Симуляция Layout.tsx
+            result += `<strong>3. Layout.tsx навигация:</strong><br>`;
+            result += `(user?.role === 'creator' ? adminNavigation : navigation)<br>`;
+            result += `user?.role = "${user?.role}"<br>`;
+            result += `user?.role === 'creator' = ${user?.role === 'creator'}<br>`;
+            result += `Результат: ${user?.role === 'creator' ? '✅ Показать админ-навигацию' : '❌ Показать обычную навигацию'}<br><br>`;
+            
+            // Симуляция AdminPanel.tsx
+            result += `<strong>4. AdminPanel.tsx проверка:</strong><br>`;
+            result += `if (user?.role !== 'creator') { return "Доступ запрещен" }<br>`;
+            result += `user?.role = "${user?.role}"<br>`;
+            result += `user?.role !== 'creator' = ${user?.role !== 'creator'}<br>`;
+            result += `Результат: ${user?.role !== 'creator' ? '❌ Показать "Доступ запрещен"' : '✅ Показать админ-панель'}<br><br>`;
+            
+            // Общий вывод
+            const hasAccess = user?.role === 'creator';
+            result += `<strong>🎯 ИТОГОВЫЙ РЕЗУЛЬТАТ:</strong><br>`;
+            result += `Админ-панель ${hasAccess ? '✅ ДОСТУПНА' : '❌ НЕ ДОСТУПНА'}<br>`;
+            
+            log('frontend-result', result, hasAccess ? 'success' : 'error');
+        }
+
+        // Автоматический запуск при загрузке
+        window.onload = function() {
+            setTimeout(testAuth, 1000);
+        };
+    </script>
+</body>
+</html>

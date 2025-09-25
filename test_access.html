@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест доступа Project Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .warning { color: orange; }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Тест доступа Project Manager</h1>
+    
+    <div class="container">
+        <h2>1. Проверка Telegram WebApp</h2>
+        <div id="telegram-status"></div>
+        <button onclick="checkTelegramWebApp()">Проверить Telegram WebApp</button>
+    </div>
+
+    <div class="container">
+        <h2>2. Проверка API доступности</h2>
+        <div id="api-status"></div>
+        <button onclick="checkAPI()">Проверить API</button>
+    </div>
+
+    <div class="container">
+        <h2>3. Тест авторизации</h2>
+        <div id="auth-status"></div>
+        <button onclick="testAuth()">Тест авторизации</button>
+        <button onclick="testCheckAccess()">Проверить доступ пользователя</button>
+    </div>
+
+    <div class="container">
+        <h2>4. Результаты</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://projectmanager.chickenkiller.com/api';
+        let currentUser = null;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="status ${type}">[${timestamp}] ${message}</div>`;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function checkTelegramWebApp() {
+            const status = document.getElementById('telegram-status');
+            status.innerHTML = '<div class="status info">Проверяем...</div>';
+
+            try {
+                if (window.Telegram?.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    const userData = tg.initDataUnsafe?.user;
+                    
+                    status.innerHTML = `
+                        <div class="status success">
+                            <strong>✅ Telegram WebApp доступен!</strong><br>
+                            <pre>${JSON.stringify({
+                                user: userData,
+                                initData: tg.initData,
+                                initDataUnsafe: tg.initDataUnsafe
+                            }, null, 2)}</pre>
+                        </div>
+                    `;
+                    log('Telegram WebApp доступен', 'success');
+                    return userData;
+                } else {
+                    status.innerHTML = '<div class="status error">❌ Telegram WebApp недоступен</div>';
+                    log('Telegram WebApp недоступен', 'error');
+                    return null;
+                }
+            } catch (error) {
+                status.innerHTML = `<div class="status error">❌ Ошибка: ${error.message}</div>`;
+                log(`Ошибка проверки Telegram WebApp: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function checkAPI() {
+            const status = document.getElementById('api-status');
+            status.innerHTML = '<div class="status info">Проверяем API...</div>';
+
+            try {
+                // Тестируем доступность API
+                const response = await fetch(`${API_BASE}/v1/users/check-access/434532312`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    status.innerHTML = `
+                        <div class="status success">
+                            <strong>✅ API доступен!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    log('API доступен', 'success');
+                    return data;
+                } else {
+                    status.innerHTML = `<div class="status error">❌ API недоступен: ${response.status} ${response.statusText}</div>`;
+                    log(`API недоступен: ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                status.innerHTML = `<div class="status error">❌ Ошибка подключения к API: ${error.message}</div>`;
+                log(`Ошибка подключения к API: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testAuth() {
+            const status = document.getElementById('auth-status');
+            status.innerHTML = '<div class="status info">Тестируем авторизацию...</div>';
+
+            try {
+                // Тестируем авторизацию с тестовым telegram_id
+                const response = await fetch(`${API_BASE}/v1/users/auth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        telegram_id: 434532312
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    
+                    status.innerHTML = `
+                        <div class="status success">
+                            <strong>✅ Авторизация успешна!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    log('Авторизация успешна', 'success');
+                    return data;
+                } else {
+                    const errorText = await response.text();
+                    status.innerHTML = `<div class="status error">❌ Ошибка авторизации: ${response.status}<br><pre>${errorText}</pre></div>`;
+                    log(`Ошибка авторизации: ${response.status} - ${errorText}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                status.innerHTML = `<div class="status error">❌ Ошибка авторизации: ${error.message}</div>`;
+                log(`Ошибка авторизации: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testCheckAccess() {
+            if (!currentUser) {
+                log('Сначала выполните авторизацию', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/v1/users/check-access/434532312`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Проверка доступа: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    // Анализируем роль
+                    if (data.role === 'creator') {
+                        log('✅ Роль "creator" найдена - админ-панель должна быть доступна', 'success');
+                    } else {
+                        log(`⚠️ Роль "${data.role}" - админ-панель недоступна`, 'warning');
+                    }
+                } else {
+                    log(`Ошибка проверки доступа: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`Ошибка проверки доступа: ${error.message}`, 'error');
+            }
+        }
+
+        // Автоматическая проверка при загрузке
+        window.onload = function() {
+            log('🚀 Начинаем автоматическую проверку...', 'info');
+            setTimeout(checkTelegramWebApp, 1000);
+            setTimeout(checkAPI, 2000);
+            setTimeout(testAuth, 3000);
+        };
+    </script>
+</body>
+</html>

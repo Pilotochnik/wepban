@@ -4,7 +4,7 @@ from typing import List
 from app.core.database import get_db
 from app.services.auth import get_current_user, create_access_token
 from app.models.user import User, UserRole
-from app.schemas.user import User as UserSchema, UserCreate, UserUpdate
+from app.schemas.user import User as UserSchema, UserCreate, UserUpdate, AuthRequest
 from app.crud.user import user_crud
 
 router = APIRouter()
@@ -26,11 +26,11 @@ def register_user(
 
 @router.post("/auth")
 def authenticate_user(
-    request: dict,
+    request: AuthRequest,
     db: Session = Depends(get_db)
 ):
     """Аутентификация пользователя через Telegram ID"""
-    telegram_id = request.get("telegram_id")
+    telegram_id = request.telegram_id
     print(f"Auth request for telegram_id: {telegram_id}")
     
     if not telegram_id:

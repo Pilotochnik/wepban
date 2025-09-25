@@ -7,7 +7,7 @@ router = Router()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message):
+async def cmd_start(message: Message, user_data: dict = None):
     """Обработчик команды /start"""
     
     # Регистрируем пользователя в системе
@@ -27,11 +27,14 @@ async def cmd_start(message: Message):
 
 Или нажмите кнопку ниже для открытия веб-приложения!"""
     
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    # Создаем клавиатуру
+    keyboard_buttons = [
         [InlineKeyboardButton(text="📊 Мои проекты", callback_data="my_projects")],
         [InlineKeyboardButton(text="🚀 Открыть веб-приложение", web_app={"url": f"{api_service.WEBAPP_URL}"})],
         [InlineKeyboardButton(text="❓ Помощь", callback_data="help")]
-    ])
+    ]
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)
     
     await message.answer(welcome_text, reply_markup=keyboard)
 

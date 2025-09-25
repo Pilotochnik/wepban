@@ -68,7 +68,7 @@ export function Layout({ children }: LayoutProps) {
               <h1 className="text-xl font-bold text-gray-900">Project Manager</h1>
             </div>
             <nav className="mt-5 px-2 space-y-1">
-              {(user?.role === 'admin' ? adminNavigation : navigation).map((item) => {
+              {(user?.role === 'creator' ? adminNavigation : navigation).map((item) => {
                 const isActive = location.pathname === item.href
                 return (
                   <Link
@@ -115,7 +115,7 @@ export function Layout({ children }: LayoutProps) {
                 <h1 className="text-xl font-bold text-gray-900">Project Manager</h1>
               </div>
               <nav className="mt-5 flex-1 px-2 space-y-1">
-                {(user?.role === 'admin' ? adminNavigation : navigation).map((item) => {
+                {(user?.role === 'creator' ? adminNavigation : navigation).map((item) => {
                   const isActive = location.pathname === item.href
                   return (
                     <Link

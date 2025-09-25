@@ -82,7 +82,7 @@ export function TaskWithPhoto({ task, onStatusChange }: TaskWithPhotoProps) {
                 </DialogHeader>
                 <div className="flex justify-center">
                   <img 
-                    src={`/api/v1/photos/tasks/${task.id}/photo/`}
+                    src={`https://projectmanager.chickenkiller.com/api/v1/photos/tasks/${task.id}/photo/`}
                     alt={`Фото для задачи ${task.title}`}
                     className="max-w-full max-h-96 object-contain rounded-lg"
                     onError={(e) => {
