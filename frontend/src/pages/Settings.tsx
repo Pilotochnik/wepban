@@ -1,10 +1,34 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { User, Settings as SettingsIcon, LogOut } from 'lucide-react'
+import { User, Settings as SettingsIcon, LogOut, Moon, Sun } from 'lucide-react'
 
 export function Settings() {
   const { user, logout } = useAuth()
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  useEffect(() => {
+    // Проверяем сохраненную тему
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true)
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  const toggleDarkMode = () => {
+    const newTheme = !isDarkMode
+    setIsDarkMode(newTheme)
+    
+    if (newTheme) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -66,17 +90,23 @@ export function Settings() {
               <h3 className="font-medium">Темная тема</h3>
               <p className="text-sm text-gray-500">Переключить на темную тему</p>
             </div>
-            <Button variant="outline" size="sm">
-              Скоро
-            </Button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium">Уведомления</h3>
-              <p className="text-sm text-gray-500">Настройка уведомлений</p>
-            </div>
-            <Button variant="outline" size="sm">
-              Скоро
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={toggleDarkMode}
+              className="bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 border-slate-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              {isDarkMode ? (
+                <>
+                  <Sun className="h-4 w-4 mr-2" />
+                  Светлая
+                </>
+              ) : (
+                <>
+                  <Moon className="h-4 w-4 mr-2" />
+                  Темная
+                </>
+              )}
             </Button>
           </div>
         </CardContent>

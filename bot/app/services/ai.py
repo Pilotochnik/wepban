@@ -23,38 +23,52 @@ class AIAssistant:
         except Exception as e:
             raise Exception(f"Ошибка распознавания речи: {str(e)}")
     
-    async def analyze_text_request(self, text: str, user_projects: List[Dict]) -> Dict[str, Any]:
+    async def analyze_text_request(self, text: str, user_projects: List[Dict], forwarded_from: str = None) -> Dict[str, Any]:
         """Анализ текстового запроса для создания задачи"""
         projects_info = "\n".join([f"- {p['name']} (ID: {p['id']})" for p in user_projects])
         
-        # Логика умного распределения по проектам
+        # Расширенная логика умного распределения по проектам
         project_keywords = {
-            "дом": ["дом", "убрать", "помыть", "почистить", "приготовить", "посуда", "полы", "комната"],
-            "работа": ["работа", "клиент", "проект", "встреча", "презентация", "отчет", "звонок", "офис"],
-            "личное": ["врач", "курсы", "спорт", "магазин", "покупка", "личное", "здоровье", "учеба"]
+            "дом": ["дом", "убрать", "помыть", "почистить", "приготовить", "посуда", "полы", "комната", "квартира", "ремонт", "мебель"],
+            "работа": ["работа", "клиент", "проект", "встреча", "презентация", "отчет", "звонок", "офис", "бизнес", "дело", "встреча", "конференция"],
+            "личное": ["врач", "курсы", "спорт", "магазин", "покупка", "личное", "здоровье", "учеба", "хобби", "отдых", "путешествие"],
+            "стройка": ["стройка", "строительство", "кирпич", "цемент", "бетон", "арматура", "краска", "инструмент", "оборудование", "техника"],
+            "техника": ["техника", "оборудование", "машина", "инструмент", "ремонт", "поломка", "дефект", "замена", "установка"]
         }
         
-        # Определяем подходящий проект
+        # Определяем подходящий проект с улучшенной логикой
         assigned_project_id = None
         text_lower = text.lower()
         
-        for category, keywords in project_keywords.items():
-            if any(keyword in text_lower for keyword in keywords):
-                # Ищем проект с похожим названием
-                for project in user_projects:
-                    if category in project["name"].lower():
-                        assigned_project_id = project["id"]
-                        break
+        # Сначала ищем точные совпадения по названию проекта
+        for project in user_projects:
+            project_name_lower = project["name"].lower()
+            if any(keyword in project_name_lower for keyword in text_lower.split()):
+                assigned_project_id = project["id"]
                 break
+        
+        # Если точное совпадение не найдено, используем ключевые слова
+        if not assigned_project_id:
+            for category, keywords in project_keywords.items():
+                if any(keyword in text_lower for keyword in keywords):
+                    # Ищем проект с похожим названием
+                    for project in user_projects:
+                        if category in project["name"].lower():
+                            assigned_project_id = project["id"]
+                            break
+                    break
         
         # Если проект не найден, берем первый доступный
         if not assigned_project_id and user_projects:
             assigned_project_id = user_projects[0]["id"]
         
+        # Добавляем информацию о пересланном сообщении
+        forwarded_info = f"\nПереслано из: {forwarded_from}" if forwarded_from else ""
+        
         prompt = f"""
-Создай задачу из текста и определи приоритет.
+Создай задачу из текста и определи приоритет. Будь максимально умным в анализе контекста.
 
-Текст: "{text}"
+Текст: "{text}"{forwarded_info}
 
 Доступные проекты:
 {projects_info}
@@ -71,14 +85,21 @@ class AIAssistant:
 }}
 
 Правила приоритета:
-- "срочно", "быстро", "сегодня" → "urgent"
-- "важно", "приоритет" → "high" 
-- "не важно", "потом" → "low"
+- "срочно", "быстро", "сегодня", "немедленно", "asap" → "urgent"
+- "важно", "приоритет", "критично", "необходимо" → "high" 
+- "не важно", "потом", "когда будет время", "не спеша" → "low"
 - остальное → "medium"
+
+Правила анализа:
+1. Если текст содержит фото/видео с дефектами техники → приоритет "high"
+2. Если упоминается поломка, авария, проблема → приоритет "urgent"
+3. Если это обычная задача → приоритет "medium"
+4. Если это планирование, подготовка → приоритет "low"
 
 Примеры:
 - "срочно помыть посуду" → {{"title": "Помыть посуду", "description": "Срочно помыть посуду", "project_id": {assigned_project_id}, "priority": "urgent", "deadline": null}}
 - "купить молоко в магазине" → {{"title": "Купить молоко", "description": "Купить молоко в магазине", "project_id": {assigned_project_id}, "priority": "medium", "deadline": null}}
+- "поломка экскаватора, фото прилагается" → {{"title": "Ремонт экскаватора", "description": "Поломка экскаватора, фото прилагается", "project_id": {assigned_project_id}, "priority": "urgent", "deadline": null}}
 """
 
         try:

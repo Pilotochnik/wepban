@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -20,6 +20,7 @@ import {
   Shield,
   Eye,
   UserCheck,
+  FolderPlus,
 } from 'lucide-react'
 
 interface User {
@@ -54,6 +55,8 @@ export function AdminPanel() {
   const [projects, setProjects] = useState<Project[]>([])
   const [pendingApprovals, setPendingApprovals] = useState<ApprovalRequest[]>([])
   const [showAddUserDialog, setShowAddUserDialog] = useState(false)
+  const [showAddToProjectDialog, setShowAddToProjectDialog] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [selectedApproval, setSelectedApproval] = useState<ApprovalRequest | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -123,6 +126,31 @@ export function AdminPanel() {
       setPendingApprovals(response.data)
     } catch (error) {
       console.error('Ошибка загрузки одобрений:', error)
+    }
+  }
+
+  const handleAddUserToProject = (user: User) => {
+    setSelectedUser(user)
+    setShowAddToProjectDialog(true)
+  }
+
+  const handleAddToProject = async (projectId: number) => {
+    if (!selectedUser) return
+    
+    try {
+      await apiService.addUserToProject(selectedUser.id, projectId)
+      toast({
+        title: "Пользователь добавлен в проект",
+        description: `${selectedUser.first_name} ${selectedUser.last_name} добавлен в проект`,
+      })
+      setShowAddToProjectDialog(false)
+      setSelectedUser(null)
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить пользователя в проект",
+        variant: "destructive"
+      })
     }
   }
 
@@ -292,6 +320,17 @@ export function AdminPanel() {
                   <Badge variant={user.is_active ? "default" : "destructive"}>
                     {user.is_active ? "Активен" : "Заблокирован"}
                   </Badge>
+                  {user.role !== 'creator' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleAddUserToProject(user)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <FolderPlus className="h-4 w-4 mr-1" />
+                      Добавить в проект
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -355,6 +394,38 @@ export function AdminPanel() {
           onReject={(comment) => handleApproval(selectedApproval.id, 'rejected', comment)}
           onClose={() => setSelectedApproval(null)}
         />
+      )}
+
+      {/* Диалог добавления пользователя в проект */}
+      {showAddToProjectDialog && selectedUser && (
+        <Dialog open={showAddToProjectDialog} onOpenChange={setShowAddToProjectDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Добавить пользователя в проект</DialogTitle>
+              <DialogDescription>
+                Выберите проект для пользователя {selectedUser.first_name} {selectedUser.last_name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {projects.map((project) => (
+                <Button
+                  key={project.id}
+                  variant="outline"
+                  className="w-full justify-start text-left hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
+                  onClick={() => handleAddToProject(project.id)}
+                >
+                  <FolderPlus className="h-4 w-4 mr-2" />
+                  {project.name}
+                </Button>
+              ))}
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowAddToProjectDialog(false)}>
+                Отмена
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )

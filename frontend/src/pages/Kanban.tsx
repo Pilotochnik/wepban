@@ -4,11 +4,14 @@ import { KanbanColumn } from '@/components/KanbanColumn'
 import { TaskCard } from '@/components/TaskCard'
 import { CreateTaskDialog } from '@/components/CreateTaskDialog'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { apiService, Task } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
-import { Plus, ArrowLeft } from 'lucide-react'
+import { Plus, ArrowLeft, FolderKanban, Wrench } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { EquipmentTab } from '@/components/EquipmentTab'
 
 const columns = [
   { id: 'todo', title: 'К выполнению', color: 'bg-gray-100' },
@@ -22,6 +25,7 @@ export function Kanban() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
@@ -138,24 +142,54 @@ export function Kanban() {
         </Button>
       </div>
 
-      {/* Kanban Board */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {columns.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            id={column.id}
-            title={column.title}
-            color={column.color}
-            tasks={tasksByStatus[column.id] || []}
-            onStatusChange={(taskId, newStatus) => {
-              updateTaskMutation.mutate({
-                id: taskId,
-                data: { status: newStatus as any }
-              })
-            }}
-          />
-        ))}
-      </div>
+      {/* Tabs */}
+      <Tabs defaultValue="kanban" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="kanban" className="flex items-center gap-2">
+            <FolderKanban className="h-4 w-4" />
+            Задачи
+          </TabsTrigger>
+          <TabsTrigger value="equipment" className="flex items-center gap-2">
+            <Wrench className="h-4 w-4" />
+            Техника
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="kanban" className="space-y-6">
+          {/* Kanban Board */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {columns.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                color={column.color}
+                tasks={tasksByStatus[column.id] || []}
+                onStatusChange={(taskId, newStatus) => {
+                  // Прораб не может менять статусы напрямую - нужно одобрение
+                  if (user?.role === 'foreman') {
+                    toast({
+                      title: "Требуется одобрение",
+                      description: "Изменение статуса задачи требует одобрения создателя",
+                      variant: "destructive",
+                    })
+                    return
+                  }
+                  
+                  updateTaskMutation.mutate({
+                    id: taskId,
+                    data: { status: newStatus as any }
+                  })
+                }}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="equipment" className="space-y-6">
+          <EquipmentTab projectId={project.id} />
+        </TabsContent>
+      </Tabs>
 
       {/* Create Task Dialog */}
       <CreateTaskDialog

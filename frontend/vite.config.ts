@@ -20,7 +20,7 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
-      'projectmanager.chickenkiller.com',
+      'webpan.chickenkiller.com',
       '.chickenkiller.com'
     ]
   },

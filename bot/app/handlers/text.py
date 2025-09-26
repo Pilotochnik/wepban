@@ -23,14 +23,30 @@ async def handle_text_message(message: Message):
         api_service = APIService()
         
         # Проверяем, содержит ли сообщение запрос на создание задачи
-        task_keywords = ['создай', 'добавь', 'добавить', 'задача', 'задачи', 'todo', 'task']
+        task_keywords = ['создай', 'добавь', 'добавить', 'задача', 'задачи', 'todo', 'task', 'поломка', 'проблема', 'дефект', 'ремонт']
         message_text = message.text.lower()
         
         print(f"Проверяем ключевые слова в: {message_text}")
         print(f"Ключевые слова: {task_keywords}")
         
-        if any(keyword in message_text for keyword in task_keywords):
-            print("Найдено ключевое слово, создаем задачу...")
+        # Определяем, является ли это пересланным сообщением
+        forwarded_from = None
+        if message.forward_from:
+            forwarded_from = f"{message.forward_from.first_name} {message.forward_from.last_name or ''}"
+        elif message.forward_sender_name:
+            forwarded_from = message.forward_sender_name
+        
+        # Расширенная логика определения задач
+        is_task_request = (
+            any(keyword in message_text for keyword in task_keywords) or
+            message.photo or  # Сообщение с фото может быть задачей
+            message.video or  # Сообщение с видео может быть задачей
+            message.document or  # Документ может быть задачей
+            forwarded_from is not None  # Пересланное сообщение может быть задачей
+        )
+        
+        if is_task_request:
+            print("Обнаружен запрос на создание задачи...")
             logger.info(f"Обнаружен запрос на создание задачи: {message.text}")
             
             # Отправляем сообщение о начале обработки
@@ -43,8 +59,13 @@ async def handle_text_message(message: Message):
                 logger.warning(f"Не удалось получить проекты: {e}")
                 user_projects = []  # Используем пустой список
             
+            # Если нет проектов, сообщаем об этом
+            if not user_projects:
+                await message.answer("❌ У вас нет доступных проектов. Обратитесь к администратору для получения доступа.")
+                return
+            
             # Используем AI для анализа и создания задачи
-            task_data = await ai_service.analyze_text_request(message.text, user_projects)
+            task_data = await ai_service.analyze_text_request(message.text, user_projects, forwarded_from)
             
             logger.info(f"AI анализ результата: {task_data}")
             print(f"AI анализ результата: {task_data}")
@@ -84,7 +105,8 @@ async def handle_text_message(message: Message):
                 "Попробуйте написать:\n"
                 "• \"Создай задачу: купить молоко\"\n"
                 "• \"Добавь задачу: позвонить клиенту\"\n"
-                "• \"Задача: подготовить презентацию\""
+                "• \"Задача: подготовить презентацию\"\n"
+                "• Переслать сообщение с описанием проблемы"
             )
             
     except Exception as e:

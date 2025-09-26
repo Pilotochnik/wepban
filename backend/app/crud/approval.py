@@ -41,9 +41,35 @@ class ApprovalCRUD:
         approval.reviewed_at = datetime.utcnow()
         approval.review_comment = comment
         
+        # Если одобрено - выполняем действие
+        if status == ApprovalStatus.APPROVED:
+            self._execute_approved_action(db, approval)
+        
         db.commit()
         db.refresh(approval)
         return approval
+    
+    def _execute_approved_action(self, db: Session, approval: ApprovalRequest):
+        """Выполнение одобренного действия"""
+        import json
+        from app.crud.task import task_crud
+        from app.schemas.task import TaskCreate
+        from datetime import datetime
+        
+        if approval.action_type == ActionType.CREATE_TASK:
+            # Создаем задачу
+            action_data = json.loads(approval.action_data)
+            task_data = TaskCreate(
+                title=action_data["title"],
+                description=action_data.get("description"),
+                priority=action_data.get("priority", "medium"),
+                deadline=datetime.fromisoformat(action_data["deadline"]) if action_data.get("deadline") else None,
+                project_id=action_data["project_id"],
+                status="todo"
+            )
+            
+            task = task_crud.create(db, task_data, approval.requester_id)
+            approval.entity_id = task.id  # Обновляем ID созданной задачи
 
     def count_pending(self, db: Session, approver_id: int) -> int:
         """Подсчет ожидающих одобрения запросов"""

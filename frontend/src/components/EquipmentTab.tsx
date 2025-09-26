@@ -29,10 +29,12 @@ interface EquipmentPhoto {
   id: number
   equipment_id: number
   photo_url: string
-  stage: 'start' | 'end'
+  stage: 'start' | 'end' | 'defect'
   description?: string
   taken_at: string
   taken_by?: string
+  defect_type?: 'damage' | 'wear' | 'missing_parts' | 'other'
+  defect_severity?: 'minor' | 'major' | 'critical'
 }
 
 interface Equipment {
@@ -268,6 +270,8 @@ export function EquipmentTab({ projectId }: EquipmentTabProps) {
               key={item.id}
               equipment={item}
               onAddPhoto={handleAddPhoto}
+              onSelectEquipment={setSelectedEquipment}
+              onShowPhotoDialog={setShowPhotoDialog}
               viewMode={viewMode}
             />
           ))}
@@ -298,11 +302,15 @@ export function EquipmentTab({ projectId }: EquipmentTabProps) {
 // Карточка техники
 function EquipmentCard({ 
   equipment, 
-  onAddPhoto, 
+  onAddPhoto,
+  onSelectEquipment,
+  onShowPhotoDialog,
   viewMode 
 }: { 
   equipment: Equipment
   onAddPhoto: (equipmentId: number, photoData: any) => void
+  onSelectEquipment: (equipment: Equipment) => void
+  onShowPhotoDialog: (show: boolean) => void
   viewMode: 'grid' | 'list'
 }) {
   const startPhotos = equipment.photos.filter(p => p.stage === 'start')
@@ -334,15 +342,15 @@ function EquipmentCard({
       <CardContent>
         <div className="space-y-4">
           {/* Фото отчеты */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="text-center">
-              <div className="text-sm font-medium text-green-700 mb-2">Начало работ</div>
+              <div className="text-sm font-medium text-green-700 mb-2">При получении</div>
               <div className="bg-green-50 border-2 border-dashed border-green-200 rounded-lg p-3 min-h-[80px] flex items-center justify-center">
                 {startPhotos.length > 0 ? (
                   <div className="relative">
                     <img 
                       src={startPhotos[0].photo_url} 
-                      alt="Начало работ"
+                      alt="Состояние при получении"
                       className="w-full h-16 object-cover rounded"
                     />
                     {startPhotos.length > 1 && (
@@ -360,13 +368,13 @@ function EquipmentCard({
               </div>
             </div>
             <div className="text-center">
-              <div className="text-sm font-medium text-blue-700 mb-2">Конец работ</div>
+              <div className="text-sm font-medium text-blue-700 mb-2">При возврате</div>
               <div className="bg-blue-50 border-2 border-dashed border-blue-200 rounded-lg p-3 min-h-[80px] flex items-center justify-center">
                 {endPhotos.length > 0 ? (
                   <div className="relative">
                     <img 
                       src={endPhotos[0].photo_url} 
-                      alt="Конец работ"
+                      alt="Состояние при возврате"
                       className="w-full h-16 object-cover rounded"
                     />
                     {endPhotos.length > 1 && (
@@ -383,26 +391,94 @@ function EquipmentCard({
                 )}
               </div>
             </div>
+            <div className="text-center">
+              <div className="text-sm font-medium text-red-700 mb-2">Дефекты</div>
+              <div className="bg-red-50 border-2 border-dashed border-red-200 rounded-lg p-3 min-h-[80px] flex items-center justify-center">
+                {equipment.photos.filter(p => p.stage === 'defect').length > 0 ? (
+                  <div className="relative">
+                    <img 
+                      src={equipment.photos.filter(p => p.stage === 'defect')[0].photo_url} 
+                      alt="Дефекты"
+                      className="w-full h-16 object-cover rounded"
+                    />
+                    <Badge className="absolute -top-2 -right-2 bg-red-600">
+                      {equipment.photos.filter(p => p.stage === 'defect').length}
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="text-red-600">
+                    <Camera className="h-6 w-6 mx-auto mb-1" />
+                    <div className="text-xs">Нет фото</div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Кнопки действий */}
-          <div className="flex gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <Button 
               size="sm" 
-              className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
-              onClick={() => {/* Открыть просмотр фото */}}
+              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
+              onClick={() => {
+                onSelectEquipment(equipment)
+                onShowPhotoDialog(true)
+              }}
             >
-              <Eye className="h-4 w-4 mr-2" />
-              Просмотр
+              <Eye className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Просмотр</span>
             </Button>
             <Button 
               size="sm" 
               variant="outline"
-              className="flex-1 hover:bg-green-50 hover:border-green-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
-              onClick={() => {/* Добавить фото */}}
+              className="hover:bg-green-50 hover:border-green-300 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
+              onClick={() => {
+                // Добавить фото получения
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*,video/*'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) {
+                    onAddPhoto(equipment.id, {
+                      file,
+                      stage: 'start',
+                      description: 'Состояние при получении'
+                    })
+                  }
+                }
+                input.click()
+              }}
             >
-              <Camera className="h-4 w-4 mr-2" />
-              Фото
+              <Camera className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Получение</span>
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="hover:bg-red-50 hover:border-red-300 text-red-700 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:-translate-y-0.5"
+              onClick={() => {
+                // Добавить фото дефектов
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*,video/*'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) {
+                    onAddPhoto(equipment.id, {
+                      file,
+                      stage: 'defect',
+                      description: 'Дефект техники',
+                      defect_type: 'damage',
+                      defect_severity: 'minor'
+                    })
+                  }
+                }
+                input.click()
+              }}
+            >
+              <Camera className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Дефекты</span>
             </Button>
           </div>
         </div>

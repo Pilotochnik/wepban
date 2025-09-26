@@ -40,18 +40,8 @@ export function TaskCard({ task, onStatusChange }: TaskCardProps) {
   const [mediaViewerIndex, setMediaViewerIndex] = useState(0)
   const [isChangingStatus, setIsChangingStatus] = useState(false)
 
-  // Моковые медиа файлы для демонстрации
-  const mockMedia = [
-    {
-      id: 1,
-      url: '/api/placeholder/400/300',
-      type: 'image' as const,
-      title: 'Фото задачи',
-      description: 'Текущее состояние работ',
-      uploaded_at: new Date().toISOString(),
-      uploaded_by: 'Прораб'
-    }
-  ]
+  // Медиа файлы - пока оставляем пустым, пока не подключим API
+  const mockMedia: any[] = []
 
   const handleStatusChange = async (newStatus: string) => {
     setIsChangingStatus(true)
@@ -117,7 +107,7 @@ export function TaskCard({ task, onStatusChange }: TaskCardProps) {
             </div>
           </div>
 
-          {/* Медиа файлы */}
+          {/* Медиа файлы - показываем только если есть файлы */}
           {mockMedia.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">

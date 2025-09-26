@@ -35,18 +35,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Добавляем отладочную информацию
+    console.log('AuthContext: Initializing...')
+    console.log('User Agent:', navigator.userAgent)
+    console.log('Window Telegram:', window.Telegram)
+    
     initializeAuth()
   }, [])
 
   const initializeAuth = async () => {
     try {
+      // Ждем загрузки Telegram WebApp API
+      let attempts = 0
+      const maxAttempts = 50 // 5 секунд максимум
+      
+      while (!window.Telegram?.WebApp && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        attempts++
+      }
+      
       // Проверяем, запущено ли приложение в Telegram WebApp
       if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp
+        console.log('Telegram WebApp detected:', tg)
+        
+        // Инициализируем WebApp
         tg.ready()
+        tg.expand()
         
         // Получаем данные пользователя из Telegram
-        const userData = tg.initDataUnsafe.user
+        const userData = tg.initDataUnsafe?.user
+        console.log('Telegram user data:', userData)
+        
         if (userData) {
           await login(userData.id)
         } else {
@@ -55,9 +75,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null)
         }
       } else {
-        // Приложение запущено не в Telegram WebApp - доступ запрещен
-        console.log('Application not running in Telegram WebApp - access denied')
-        setUser(null)
+        // Приложение запущено не в Telegram WebApp
+        console.log('Application not running in Telegram WebApp')
+        
+        // Проверяем, есть ли сохраненный токен для тестирования
+        const savedToken = localStorage.getItem('auth_token')
+        if (savedToken) {
+          console.log('Found saved token, attempting to restore session...')
+          try {
+            api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
+            const response = await api.get('/v1/users/me')
+            setToken(savedToken)
+            setUser(response.data)
+            console.log('Session restored successfully')
+          } catch (error) {
+            console.log('Failed to restore session:', error)
+            localStorage.removeItem('auth_token')
+            setUser(null)
+          }
+        } else {
+          setUser(null)
+        }
       }
       
     } catch (error) {

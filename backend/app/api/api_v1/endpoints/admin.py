@@ -38,7 +38,24 @@ def add_user(
     if existing_user:
         raise HTTPException(status_code=400, detail="Пользователь уже существует")
     
-    return user_crud.create(db, user_data)
+    # Создаем пользователя
+    new_user = user_crud.create(db, user_data)
+    
+    # Если указан project_id, добавляем пользователя в проект
+    if hasattr(user_data, 'project_id') and user_data.project_id:
+        from app.crud.project import project_crud
+        from app.models.user_project import UserProject, ProjectRole
+        
+        # Добавляем пользователя в проект
+        user_project = UserProject(
+            user_id=new_user.id,
+            project_id=user_data.project_id,
+            role=ProjectRole.MEMBER
+        )
+        db.add(user_project)
+        db.commit()
+    
+    return new_user
 
 @router.get("/approvals/pending", response_model=List[ApprovalResponse])
 def get_pending_approvals(
@@ -91,6 +108,50 @@ def toggle_user_status(
         raise HTTPException(status_code=400, detail="Нельзя деактивировать создателя")
     
     return user_crud.update_status(db, user_id, is_active)
+
+@router.post("/users/{user_id}/projects/{project_id}")
+def add_user_to_project(
+    user_id: int,
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Добавление пользователя в проект (только для создателя)"""
+    if current_user.role != UserRole.CREATOR:
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
+    
+    # Проверяем существование пользователя
+    user = user_crud.get(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    
+    # Проверяем существование проекта
+    from app.crud.project import project_crud
+    project = project_crud.get(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Проект не найден")
+    
+    # Проверяем, не добавлен ли уже пользователь в проект
+    from app.models.user_project import UserProject
+    existing = db.query(UserProject).filter(
+        UserProject.user_id == user_id,
+        UserProject.project_id == project_id
+    ).first()
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Пользователь уже добавлен в этот проект")
+    
+    # Добавляем пользователя в проект
+    from app.models.user_project import ProjectRole
+    user_project = UserProject(
+        user_id=user_id,
+        project_id=project_id,
+        role=ProjectRole.MEMBER
+    )
+    db.add(user_project)
+    db.commit()
+    
+    return {"message": "Пользователь успешно добавлен в проект"}
 
 @router.get("/stats")
 def get_admin_stats(

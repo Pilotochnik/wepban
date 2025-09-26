@@ -17,7 +17,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    pass
+    project_id: Optional[int] = None
 
 
 class UserUpdate(BaseModel):
